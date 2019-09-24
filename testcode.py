@@ -88,7 +88,7 @@ if __name__ == "__main__":
     q=multiprocessing.Queue() #multiprocessing에서 쓸 queue
     host_name=comfirm_hostname()
 
-    for i in range(10)
+    for i in range(10):
         get_ble_data(sock, q)
         send_ble_data_to_server(q, host_name)
 
