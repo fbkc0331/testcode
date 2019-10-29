@@ -1,0 +1,106 @@
+#include <Servo.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+
+//-------------------------------functions-------------------------------//
+// usart functions
+void usart0_init(void);
+void tx_putc(unsigned char data);
+void tx_puts(char* str);
+
+// servo functions
+void servo_init();
+void servo_angle(int angle);
+
+// motor functions
+void motor_init();
+void set_motor_speed(int ocr0a);
+
+
+//-------------------------------variables-------------------------------//
+// uart vars
+char tx_buff[20];
+char rx_buff;
+
+// servo vars
+int servoPin = 9;
+Servo servo;
+char angle = 0;
+
+// motor vars
+int pwmPin = 6;
+
+
+//-------------------------------interrupt service routine-------------------------------//
+ISR(USART_RX_vect)
+{
+  rx_buff = UDR0;
+  tx0_puts("input : ");
+  tx0_putc(rx_buff);
+  tx0_puts("\n\r");
+}
+
+
+//-------------------------------main loop-------------------------------//
+void setup() 
+{
+  usart0_init();
+  servo_init();  
+  motor_init();
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
+
+
+//-------------------------------usart functions-------------------------------//
+void usart0_init(void)
+{
+  UCSR0A = 0;
+  UCSR0B = (1 << RXCIE0) | (1 << RXEN0) | (1 << TXEN0);
+  UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);                  // | (1 << USBS0); // USBS0 : 1 - stop bit=2, 0(dflt) - stop=1bit
+  UBRR0H = 0;
+  UBRR0L = 103;
+}
+
+void tx0_putc(unsigned char data)
+{
+  while(!(UCSR0A & (1 << UDRE0)));
+  UDR0 = data;
+}
+
+void tx0_puts(char* str)
+{
+  while(*str)
+  {
+    tx0_putc(*str++);
+  }
+}
+
+
+//-------------------------------servo functions-------------------------------//
+void servo_init(void)
+{
+  servo.attach(servoPin);
+}
+
+void servo_angle(int angle)
+{
+  servo.write(angle);
+}
+
+//-------------------------------motor functions-------------------------------//
+void motor_init(void)
+{
+  pinMode(pwmPin, OUTPUT);
+  DDRC = 0xff;
+  PORTC = 0x00;
+}
+
+void set_motor_speed(int ocr0a)
+{
+  analogWrite(pwmPin, ocr0a);
+}
