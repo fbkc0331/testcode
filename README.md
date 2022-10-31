@@ -1,3 +1,3 @@
 # testcode
 
-[요것은 링크여](www.google.com)
+[Google](http://www.google.co.kr)
